@@ -44,6 +44,7 @@ class ParameterReflection extends AnnotatedReflection<Parameter> implements IPar
 		return getElement().getName();
 	}
 
+	@Override
 	public boolean isFinal() {
 		return Modifier.isFinal(getElement().getModifiers());
 	}

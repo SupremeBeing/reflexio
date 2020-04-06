@@ -32,7 +32,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-class FieldReflection extends MemberReflection<Field> implements IFieldReflection {
+abstract class FieldReflection extends MemberReflection<Field> implements IFieldReflection {
 	
 	FieldReflection(Field field) {
 		super(field);
@@ -43,17 +43,12 @@ class FieldReflection extends MemberReflection<Field> implements IFieldReflectio
 		return Modifier.isStatic(getElement().getModifiers());
 	}
 
+	@Override
 	public boolean isFinal() {
 		return Modifier.isFinal(getElement().getModifiers());
 	}
 
-	@Override
-	public Object getStaticValue() {
-		return getValue(null);
-	}
-
-	@Override
-	public Object getValue(Object data) {
+	Object getValue(Object data) {
 		return forceAccess(() -> {
 			try {
 				return getElement().get(data);
@@ -63,13 +58,7 @@ class FieldReflection extends MemberReflection<Field> implements IFieldReflectio
 		});
 	}
 
-	@Override
-	public void setStaticValue(Object value) {
-		setValue(null, value);
-	}
-
-	@Override
-	public void setValue(Object data, Object value) {
+	void setValue(Object data, Object value) {
 		forceAccess(() -> {
 			try {
 				getElement().set(data, value);
@@ -81,14 +70,14 @@ class FieldReflection extends MemberReflection<Field> implements IFieldReflectio
 	}
 
 	@Override
-	public List<ClassReflection<?>> getGenericClasses() {
+	public List<ITypeReflection<?>> getGenericClasses() {
 		Type t = getElement().getGenericType();
 		if (t instanceof ParameterizedType) {
 			Type[] types = ((ParameterizedType) t).getActualTypeArguments();
-			List<ClassReflection<?>> result = new ArrayList<>();
+			List<ITypeReflection<?>> result = new ArrayList<>();
 			for (Type type : types) {
 				if (type instanceof Class) {
-					result.add(new ClassReflection<>((Class<?>) type));
+					result.add(new TypeReflection<>((Class<?>) type));
 				}
 			}
 			return result;
@@ -100,4 +89,21 @@ class FieldReflection extends MemberReflection<Field> implements IFieldReflectio
 	public Class<?> getType() {
 		return getElement().getType();
 	}
+
+	String getGetterName() {
+		return IMethodReflection.GET_PREFIX + capitalizeName();
+	}
+
+	String getSetterName() {
+		if (getType() == Boolean.class || getType() == boolean.class) {
+			return IMethodReflection.IS_PREFIX + capitalizeName();
+		} else {
+			return IMethodReflection.SET_PREFIX + capitalizeName();
+		}
+	}
+
+	private String capitalizeName() {
+		return getName().substring(0, 1).toUpperCase() + getName().substring(1);
+	}
+
 }

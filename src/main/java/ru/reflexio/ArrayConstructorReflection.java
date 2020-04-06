@@ -1,28 +1,3 @@
-/*
- * Copyright (c) 2019, Dmitriy Shchekotin
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
 package ru.reflexio;
 
 import java.lang.reflect.Array;
@@ -30,7 +5,47 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-class ArrayConstructorReflection<T> extends VirtualReflection implements IConstructorReflection<T> {
+abstract class ArrayConstructorReflection<T> extends VirtualReflection implements IConstructorReflection<T> {
+
+    static class Empty<T> extends ArrayConstructorReflection<T> {
+
+        Empty(Class<?> arrayType) {
+            super(arrayType);
+        }
+
+        @Override
+        public List<IParameterReflection> getParameters() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public boolean canInvoke(Class<?>... types) {
+            return types.length == 0;
+        }
+
+    }
+
+    static class Length<T> extends ArrayConstructorReflection<T> {
+
+        private final VirtualParameterReflection parameter = new VirtualParameterReflection(int.class, "length");
+
+        Length(Class<?> arrayType) {
+            super(arrayType);
+        }
+
+        @Override
+        public List<IParameterReflection> getParameters() {
+            List<IParameterReflection> result = new ArrayList<>();
+            result.add(parameter);
+            return result;
+        }
+
+        @Override
+        public boolean canInvoke(Class<?>... types) {
+            return types.length == 1 && (types[0] == int.class || types[0] == Integer.class);
+        }
+
+    }
 
     private final Class<?> arrayType;
 
@@ -44,22 +59,6 @@ class ArrayConstructorReflection<T> extends VirtualReflection implements IConstr
     @Override
     public AccessType getAccessType() {
         return AccessType.Public;
-    }
-
-    @Override
-    public List<IParameterReflection> getParameters() {
-        List<IParameterReflection> result = new ArrayList<>();
-        result.add(new VirtualParameterReflection(int.class, "size"));
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T invoke(Object... args) {
-        if (args.length != 1 || !(args[0] instanceof Integer)) {
-            throw new RuntimeException();
-        }
-        return (T) Array.newInstance(arrayType.getComponentType(), (Integer) args[0]);
     }
 
     @Override
@@ -79,9 +78,22 @@ class ArrayConstructorReflection<T> extends VirtualReflection implements IConstr
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ArrayConstructorReflection) {
-            return Objects.equals(arrayType, ((ArrayConstructorReflection) obj).getType());
+        if (obj instanceof ArrayConstructorReflection.Length) {
+            return Objects.equals(arrayType, ((Length<?>) obj).getType());
         }
         return false;
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T invoke(Object... args) {
+        if (args.length == 0) {
+            return (T) Array.newInstance(arrayType.getComponentType(), 0);
+        } else if (args.length == 1 && args[0] instanceof Integer) {
+            return (T) Array.newInstance(arrayType.getComponentType(), (Integer) args[0]);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
 }

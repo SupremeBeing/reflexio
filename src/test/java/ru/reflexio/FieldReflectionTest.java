@@ -35,8 +35,8 @@ public class FieldReflectionTest {
 	@Test
 	public void testGetValue() {
 		GrandChild grandChild = new GrandChild(10);
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IInstanceFieldReflection field = cr.findInstanceField("code");
 		Object value = field.getValue(grandChild);
 		Assert.assertNotNull(value);
 		Assert.assertTrue(value instanceof Integer);
@@ -45,16 +45,16 @@ public class FieldReflectionTest {
 	
 	@Test(expected = RuntimeException.class)
 	public void testGetInvalidField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code");
-		field.getStaticValue();
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IStaticFieldReflection field = cr.findStaticField("code");
+		field.getValue();
 	}
 
 	@Test
 	public void testGetStaticField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("CONSTANT");
-		Object value = field.getStaticValue();
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IStaticFieldReflection field = cr.findStaticField("CONSTANT");
+		Object value = field.getValue();
 		Assert.assertNotNull(value);
 		Assert.assertTrue(value instanceof String);
 		Assert.assertEquals("the name", value);
@@ -62,10 +62,10 @@ public class FieldReflectionTest {
 	
 	@Test
 	public void testFindShadowField() {
-		ClassReflection<Child> cr = new ClassReflection<>(Child.class);
+		TypeReflection<Child> cr = new TypeReflection<>(Child.class);
 		GrandChild grandChild = new GrandChild("visible");
 		grandChild.setMessage("shadowed");
-		IFieldReflection field = cr.findField("message");
+		IInstanceFieldReflection field = cr.findInstanceField("message");
 		Assert.assertNotNull(field);
 		Object value = field.getValue(grandChild);
 		Assert.assertEquals("shadowed", value);
@@ -74,56 +74,56 @@ public class FieldReflectionTest {
 	@Test
 	public void testSetValue() {
 		GrandChild grandChild = new GrandChild(10);
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IInstanceFieldReflection field = cr.findInstanceField("code");
 		field.setValue(grandChild, 20);
 		Assert.assertEquals(20, grandChild.getCode());
 	}
 	
 	@Test(expected = RuntimeException.class)
 	public void testSetInvalidField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IInstanceFieldReflection field = cr.findInstanceField("code");
 		field.setValue(null, 0);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testSetInvalidTypeField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		GrandChild grandChild = new GrandChild(10);
-		IFieldReflection field = cr.findField("code");
+		IInstanceFieldReflection field = cr.findInstanceField("code");
 		field.setValue(grandChild, "string");
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testSetStaticFinalField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("CONSTANT");
-		field.setStaticValue("ALTERED");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IStaticFieldReflection field = cr.findStaticField("CONSTANT");
+		field.setValue("ALTERED");
 	}
 
 	@Test
 	public void testSetFinalField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		GrandChild grandChild = new GrandChild(10);
-		IFieldReflection field = cr.findField("message");
+		IInstanceFieldReflection field = cr.findInstanceField("message");
 		field.setValue(grandChild, "Altered");
 		Assert.assertEquals("Altered", grandChild.getMessage());
 	}
 
 	@Test
 	public void testSetStaticField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("STATIC");
-		field.setStaticValue(200);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IStaticFieldReflection field = cr.findStaticField("STATIC");
+		field.setValue(200);
 		Assert.assertEquals(200, GrandChild.STATIC);
 	}
 
 	@Test
 	public void testGenericType() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("map");
-		List<ClassReflection<?>> generics = field.getGenericClasses();
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IInstanceFieldReflection field = cr.findInstanceField("map");
+		List<ITypeReflection<?>> generics = field.getGenericClasses();
 		Assert.assertEquals(2, generics.size());
 		Assert.assertEquals(String.class, generics.get(0).getType());
 		Assert.assertEquals(Parent.class, generics.get(1).getType());

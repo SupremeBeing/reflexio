@@ -32,36 +32,29 @@ public class MethodReflectionTest {
 
     @Test
     public void testInvocation() {
-        ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-        IMethodReflection m = cr.findMethod("getCode");
+        TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+        IInstanceMethodReflection m = cr.findInstanceMethod("getCode");
         GrandChild grandChild = new GrandChild(100);
-        Object value = m.invokeOn(grandChild);
+        Object value = m.invoke(grandChild);
         Assert.assertTrue(value instanceof Integer);
         Assert.assertEquals(100, value);
     }
 
     @Test
     public void testStaticInvocation() {
-        ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-        IMethodReflection m = cr.findMethod("setStatic");
+        TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+        IStaticMethodReflection m = cr.findStaticMethod("setStatic");
         Object value = m.invoke(20);
         Assert.assertNull(value);
         Assert.assertEquals(20, GrandChild.STATIC);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testInvalidStaticInvocation() {
-        ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-        IMethodReflection m = cr.findMethod("getCode");
-        m.invoke();
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidInvocation() {
-        ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-        IMethodReflection m = cr.findMethod("getCode");
+        TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+        IInstanceMethodReflection m = cr.findInstanceMethod("getCode");
         GrandChild grandChild = new GrandChild(100);
-        m.invokeOn(grandChild, 200);
+        m.invoke(grandChild, 200);
     }
 
 }

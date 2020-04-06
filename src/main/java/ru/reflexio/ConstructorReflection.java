@@ -28,7 +28,7 @@ package ru.reflexio;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-class ConstructorReflection<T> extends ExecutableReflection<Constructor<T>, T> implements IConstructorReflection<T> {
+class ConstructorReflection<T> extends ExecutableReflection<Constructor<T>> implements IConstructorReflection<T> {
 
 	ConstructorReflection(Constructor<T> constructor) {
 		super(constructor);
@@ -49,4 +49,5 @@ class ConstructorReflection<T> extends ExecutableReflection<Constructor<T>, T> i
 	public Class<?> getType() {
 		return getElement().getDeclaringClass();
 	}
+
 }

@@ -25,52 +25,44 @@
  */
 package ru.reflexio;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.util.List;
 
-abstract class MethodReflection extends ExecutableReflection<Method> implements IMethodReflection {
+public interface ITypeReflection<T> extends IReflection {
 
-	MethodReflection(Method method) {
-		super(method);
-	}
+    boolean isFinal();
 
-	Object invoke(Object data, Object... args) {
-		return forceAccess(() -> {
-			try {
-				return getElement().invoke(data, args);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
+    T instantiate(Object... args);
 
-	@Override
-	public boolean isStatic() {
-		return Modifier.isStatic(getElement().getModifiers());
-	}
+    List<IConstructorReflection<T>> getConstructors();
 
-	@Override
-	public boolean isFinal() {
-		return Modifier.isFinal(getElement().getModifiers());
-	}
+    IConstructorReflection<T> findConstructor(Class<?>... types);
 
-	@Override
-	public Class<?> getType() {
-		return getElement().getReturnType();
-	}
+    IConstructorReflection<T> findDefaultConstructor();
 
-	@Override
-	public boolean isGetter() {
-		boolean isBoolean = getType() == Boolean.class || getType() == boolean.class;
-		boolean hasBooleanName = getName().startsWith(IS_PREFIX);
-		boolean hasGetPrefix = getName().startsWith(GET_PREFIX);
-		return getElement().getParameterCount() == 0 && (hasGetPrefix || (isBoolean && hasBooleanName));
-	}
+    List<ITypeReflection<?>> getTypeHierarchy();
 
-	@Override
-	public boolean isSetter() {
-		return getElement().getParameterCount() == 1 && getName().startsWith(SET_PREFIX);
-	}
+    List<IStaticMethodReflection> getStaticTypeMethods();
+
+    List<IInstanceMethodReflection> getInstanceTypeMethods();
+
+    List<IStaticMethodReflection> getStaticMethods();
+
+    List<IInstanceMethodReflection> getInstanceMethods();
+
+    List<IStaticFieldReflection> getStaticTypeFields();
+
+    List<IInstanceFieldReflection> getInstanceTypeFields();
+
+    List<IStaticFieldReflection> getStaticFields();
+
+    List<IInstanceFieldReflection> getInstanceFields();
+
+    IStaticFieldReflection findStaticField(String fieldName);
+
+    IInstanceFieldReflection findInstanceField(String fieldName);
+
+    IInstanceMethodReflection findInstanceMethod(String methodName);
+
+    IStaticMethodReflection findStaticMethod(String methodName);
 
 }

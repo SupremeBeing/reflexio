@@ -31,14 +31,12 @@ public interface IFieldReflection extends IMemberReflection {
 
     boolean isStatic();
 
-    Object getStaticValue();
+    boolean isFinal();
 
-    Object getValue(Object data);
+    List<ITypeReflection<?>> getGenericClasses();
 
-    void setStaticValue(Object value);
+    IMethodReflection getGetter();
 
-    void setValue(Object data, Object value);
-
-    List<ClassReflection<?>> getGenericClasses();
+    IMethodReflection getSetter();
 
 }

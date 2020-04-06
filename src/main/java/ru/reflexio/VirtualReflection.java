@@ -42,7 +42,7 @@ abstract class VirtualReflection implements IReflection {
     }
 
     @Override
-    public <A extends Annotation> List<MarkedAnnotation<A>> getMarkedAnnotations(Class<A> markerClass) {
+    public <A extends Annotation> List<MetaAnnotation<A>> getMetaAnnotations(Class<A> markerClass) {
         return new ArrayList<>();
     }
 

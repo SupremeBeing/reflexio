@@ -33,78 +33,78 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ClassReflectionTest {
+public class TypeReflectionTest {
 
 	@Test
 	public void testClassHierarchy() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		List<ClassReflection<?>> hierarchy = cr.getHierarchy();
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		List<ITypeReflection<?>> hierarchy = cr.getTypeHierarchy();
 		Assert.assertEquals(4, hierarchy.size());
-		Assert.assertEquals(Object.class, hierarchy.get(0).getElement());
-		Assert.assertEquals(Parent.class, hierarchy.get(1).getElement());
-		Assert.assertEquals(Child.class, hierarchy.get(2).getElement());
-		Assert.assertEquals(GrandChild.class, hierarchy.get(3).getElement());
+		Assert.assertEquals(Object.class, hierarchy.get(0).getType());
+		Assert.assertEquals(Parent.class, hierarchy.get(1).getType());
+		Assert.assertEquals(Child.class, hierarchy.get(2).getType());
+		Assert.assertEquals(GrandChild.class, hierarchy.get(3).getType());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullClass() {
-		new ClassReflection<>(null);
+		new TypeReflection<>(null);
 	}
 
 	@Test
 	public void testVoidHierarchy() {
-		ClassReflection<Void> cr = new ClassReflection<>(void.class);
-		List<ClassReflection<?>> hierarchy = cr.getHierarchy();
+		TypeReflection<Void> cr = new TypeReflection<>(void.class);
+		List<ITypeReflection<?>> hierarchy = cr.getTypeHierarchy();
 		Assert.assertEquals(1, hierarchy.size());
-		Assert.assertEquals(void.class, hierarchy.get(0).getElement());
+		Assert.assertEquals(void.class, hierarchy.get(0).getType());
 	}
 
 	@Test
 	public void testArrayHierarchy() {
-		ClassReflection<int[]> cr = new ClassReflection<>(int[].class);
-		List<ClassReflection<?>> hierarchy = cr.getHierarchy();
+		TypeReflection<int[]> cr = new TypeReflection<>(int[].class);
+		List<ITypeReflection<?>> hierarchy = cr.getTypeHierarchy();
 		Assert.assertEquals(2, hierarchy.size());
-		Assert.assertEquals(Object.class, hierarchy.get(0).getElement());
-		Assert.assertEquals(int[].class, hierarchy.get(1).getElement());
+		Assert.assertEquals(Object.class, hierarchy.get(0).getType());
+		Assert.assertEquals(int[].class, hierarchy.get(1).getType());
 	}
 
 	@Test
 	public void testGetConstructors() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		List<IConstructorReflection<GrandChild>> ctors = cr.getConstructors();
 		Assert.assertEquals(3, ctors.size());
 	}
 
 	@Test
 	public void testGetArrayConstructors() {
-		ClassReflection<int[]> cr = new ClassReflection<>(int[].class);
+		TypeReflection<int[]> cr = new TypeReflection<>(int[].class);
 		List<IConstructorReflection<int[]>> ctors = cr.getConstructors();
-		Assert.assertEquals(1, ctors.size());
+		Assert.assertEquals(2, ctors.size());
 	}
 
 	@Test
 	public void testGetEnumConstructors() {
-		ClassReflection<ElementType> cr = new ClassReflection<>(ElementType.class);
+		TypeReflection<ElementType> cr = new TypeReflection<>(ElementType.class);
 		List<IConstructorReflection<ElementType>> ctors = cr.getConstructors();
 		Assert.assertEquals(1, ctors.size());
 	}
 
 	@Test
 	public void testGetPrimitiveConstructors() {
-		ClassReflection<Integer> cr = new ClassReflection<>(int.class);
+		TypeReflection<Integer> cr = new TypeReflection<>(int.class);
 		List<IConstructorReflection<Integer>> ctors = cr.getConstructors();
 		Assert.assertEquals(2, ctors.size());
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testAbstractInstantiate() {
-		ClassReflection<Parent> cr = new ClassReflection<>(Parent.class);
+		TypeReflection<Parent> cr = new TypeReflection<>(Parent.class);
 		cr.instantiate();
 	}
 
 	@Test
 	public void testNullInstantiate() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		GrandChild grandChild = cr.instantiate((String) null);
 		Assert.assertNotNull(grandChild);
 		Assert.assertNull(grandChild.getMessage()); // string constructor was called
@@ -112,7 +112,7 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testInstantiate() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		GrandChild grandChild = cr.instantiate("Message");
 		Assert.assertEquals(GrandChild.class, grandChild.getClass());
 		Assert.assertEquals("Message", grandChild.getMessage());
@@ -120,7 +120,7 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testArrayInstantiate() {
-		ClassReflection<int[]> cr = new ClassReflection<>(int[].class);
+		TypeReflection<int[]> cr = new TypeReflection<>(int[].class);
 		int[] intArray = cr.instantiate(2);
 		Assert.assertNotNull(intArray);
 		Assert.assertEquals(2, intArray.length);
@@ -128,30 +128,30 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testInnerInstantiate() {
-		ClassReflection<Child> cr = new ClassReflection<>(Child.class);
+		TypeReflection<Child> cr = new TypeReflection<>(Child.class);
 		Child child = cr.instantiate("Nothing");
-		ClassReflection<Child.Inner> ir = new ClassReflection<>(Child.Inner.class);
+		TypeReflection<Child.Inner> ir = new TypeReflection<>(Child.Inner.class);
 		Child.Inner inner = ir.instantiate(child);
 		Assert.assertNotNull(inner);
 	}
 
 	@Test
 	public void testInterfaceInstantiate() {
-		ClassReflection<List> cr = new ClassReflection<>(List.class);
-		List list = cr.instantiate();
+		TypeReflection<List> cr = new TypeReflection<>(List.class);
+		List<?> list = cr.instantiate();
 		Assert.assertNull(list);
 	}
 
 	@Test
 	public void testAnnotationInstantiate() {
-		ClassReflection<SuppressWarnings> cr = new ClassReflection<>(SuppressWarnings.class);
+		TypeReflection<SuppressWarnings> cr = new TypeReflection<>(SuppressWarnings.class);
 		SuppressWarnings a = cr.instantiate();
 		Assert.assertNull(a);
 	}
 
 	@Test
 	public void testPrimitiveInstantiate() {
-		ClassReflection<Integer> cr = new ClassReflection<>(int.class);
+		TypeReflection<Integer> cr = new TypeReflection<>(int.class);
 		Integer obj = cr.instantiate(10);
 		Assert.assertNotNull(obj);
 		Assert.assertEquals(Integer.valueOf(10), obj);
@@ -160,7 +160,7 @@ public class ClassReflectionTest {
 	@Test
 	public void testSupertypeArgsInstantiate() {
 		Collection<String> list = new ArrayList<>();
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		GrandChild grandChild = cr.instantiate(list, "Custom");
 		Assert.assertNotNull(grandChild);
 		Assert.assertEquals(list, grandChild.getCollection());
@@ -169,7 +169,7 @@ public class ClassReflectionTest {
 	
 	@Test
 	public void testPrimitiveArgsInstantiate() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		int value = 10;
 		GrandChild grandChild = cr.instantiate(value);
 		Assert.assertNotNull(grandChild);
@@ -178,7 +178,7 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testPrimitiveCastInstantiate() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		short value = 10;
 		GrandChild grandChild = cr.instantiate(value);
 		Assert.assertNull(grandChild);
@@ -186,7 +186,7 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testFindDefaultConstructor() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
 		IConstructorReflection<GrandChild> ctor = cr.findDefaultConstructor();
 		Assert.assertNotNull(ctor);
 		Assert.assertEquals(1, ctor.getParameters().size());
@@ -194,23 +194,23 @@ public class ClassReflectionTest {
 
 	@Test
 	public void testFindField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IFieldReflection field = cr.findInstanceField("code");
 		Assert.assertNotNull(field);
 		Assert.assertEquals("code", field.getName());
 	}
 	
 	@Test
 	public void testFindMissingField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("code2");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IFieldReflection field = cr.findInstanceField("code2");
 		Assert.assertNull(field);
 	}
 	
 	@Test
 	public void testFindStaticField() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IFieldReflection field = cr.findField("CONSTANT");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IFieldReflection field = cr.findStaticField("CONSTANT");
 		Assert.assertNotNull(field);
 		Assert.assertEquals("CONSTANT", field.getName());
 		Assert.assertTrue(field.isStatic());
@@ -218,16 +218,16 @@ public class ClassReflectionTest {
 	
 	@Test
 	public void testFindInnerField() {
-		ClassReflection<Child.Inner> cr = new ClassReflection<>(Child.Inner.class);
-		IFieldReflection field = cr.findField("string");
+		TypeReflection<Child.Inner> cr = new TypeReflection<>(Child.Inner.class);
+		IFieldReflection field = cr.findInstanceField("string");
 		Assert.assertNotNull(field);
 		Assert.assertEquals("string", field.getName());
 	}
 	
 	@Test
 	public void testFindMethod() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IMethodReflection method = cr.findMethod("getCode");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IMethodReflection method = cr.findInstanceMethod("getCode");
 		Assert.assertNotNull(method);
 		Assert.assertEquals("getCode", method.getName());
 	}
@@ -236,24 +236,24 @@ public class ClassReflectionTest {
 	public void testFindOverrideMethod() {
 		GrandChild grandChild = new GrandChild("visible");
 		grandChild.setMessage("shadowed");
-		ClassReflection<Child> cr = new ClassReflection<>(Child.class);
-		IMethodReflection method = cr.findMethod("getMessage");
+		TypeReflection<Child> cr = new TypeReflection<>(Child.class);
+		IInstanceMethodReflection method = (IInstanceMethodReflection) cr.findInstanceMethod("getMessage");
 		Assert.assertNotNull(method);
-		Object value = method.invokeOn(grandChild);
+		Object value = method.invoke(grandChild);
 		Assert.assertEquals("visible", value);
 	}
 
 	@Test
 	public void testFindMissingMethod() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IMethodReflection method = cr.findMethod("getCode2");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IMethodReflection method = cr.findInstanceMethod("getCode2");
 		Assert.assertNull(method);
 	}
 	
 	@Test
 	public void testFindStaticMethod() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		IMethodReflection method = cr.findMethod("setStatic");
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		IMethodReflection method = cr.findStaticMethod("setStatic");
 		Assert.assertNotNull(method);
 		Assert.assertEquals("setStatic", method.getName());
 		Assert.assertTrue(method.isStatic());
@@ -261,29 +261,43 @@ public class ClassReflectionTest {
 	
 	@Test
 	public void testFindInnerMethod() {
-		ClassReflection<Child.Inner> cr = new ClassReflection<>(Child.Inner.class);
-		IMethodReflection method = cr.findMethod("setString");
+		TypeReflection<Child.Inner> cr = new TypeReflection<>(Child.Inner.class);
+		IMethodReflection method = cr.findInstanceMethod("setString");
 		Assert.assertNotNull(method);
 		Assert.assertEquals("setString", method.getName());
 	}
 
 	@Test
-	public void testGetMethods() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		List<IMethodReflection> methods = cr.getMethods();
-		Assert.assertTrue(methods.size() > 6);
+	public void testGetInstanceMethods() {
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		List<IInstanceMethodReflection> methods = cr.getInstanceMethods();
+		Assert.assertFalse(methods.isEmpty());
 		Assert.assertTrue(methods.stream().anyMatch(m -> "getCode".equals(m.getName())));
+	}
+
+	@Test
+	public void testGetStaticMethods() {
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		List<IStaticMethodReflection> methods = cr.getStaticMethods();
+		Assert.assertFalse(methods.isEmpty());
 		Assert.assertTrue(methods.stream().anyMatch(m -> "setStatic".equals(m.getName())));
 	}
 
 	@Test
-	public void testGetFields() {
-		ClassReflection<GrandChild> cr = new ClassReflection<>(GrandChild.class);
-		List<IFieldReflection> fields = cr.getFields();
-		Assert.assertEquals(7, fields.size());
-		Assert.assertEquals("CONSTANT", fields.get(1).getName());
-		Assert.assertEquals("STATIC", fields.get(2).getName());
-		Assert.assertEquals("code", fields.get(3).getName());
+	public void testGetInstanceFields() {
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		List<IInstanceFieldReflection> fields = cr.getInstanceFields();
+		Assert.assertEquals(5, fields.size());
+		Assert.assertEquals("code", fields.get(1).getName());
+	}
+
+	@Test
+	public void testGetStaticFields() {
+		TypeReflection<GrandChild> cr = new TypeReflection<>(GrandChild.class);
+		List<IStaticFieldReflection> fields = cr.getStaticFields();
+		Assert.assertEquals(2, fields.size());
+		Assert.assertEquals("CONSTANT", fields.get(0).getName());
+		Assert.assertEquals("STATIC", fields.get(1).getName());
 	}
 
 }

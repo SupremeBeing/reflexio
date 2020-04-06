@@ -25,52 +25,8 @@
  */
 package ru.reflexio;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+public interface IStaticMethodReflection extends IMethodReflection {
 
-abstract class MethodReflection extends ExecutableReflection<Method> implements IMethodReflection {
-
-	MethodReflection(Method method) {
-		super(method);
-	}
-
-	Object invoke(Object data, Object... args) {
-		return forceAccess(() -> {
-			try {
-				return getElement().invoke(data, args);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	@Override
-	public boolean isStatic() {
-		return Modifier.isStatic(getElement().getModifiers());
-	}
-
-	@Override
-	public boolean isFinal() {
-		return Modifier.isFinal(getElement().getModifiers());
-	}
-
-	@Override
-	public Class<?> getType() {
-		return getElement().getReturnType();
-	}
-
-	@Override
-	public boolean isGetter() {
-		boolean isBoolean = getType() == Boolean.class || getType() == boolean.class;
-		boolean hasBooleanName = getName().startsWith(IS_PREFIX);
-		boolean hasGetPrefix = getName().startsWith(GET_PREFIX);
-		return getElement().getParameterCount() == 0 && (hasGetPrefix || (isBoolean && hasBooleanName));
-	}
-
-	@Override
-	public boolean isSetter() {
-		return getElement().getParameterCount() == 1 && getName().startsWith(SET_PREFIX);
-	}
+    Object invoke(Object... args);
 
 }

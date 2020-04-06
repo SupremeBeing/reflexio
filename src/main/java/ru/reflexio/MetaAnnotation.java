@@ -25,52 +25,24 @@
  */
 package ru.reflexio;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.annotation.Annotation;
 
-abstract class MethodReflection extends ExecutableReflection<Method> implements IMethodReflection {
+public class MetaAnnotation<A extends Annotation> {
 
-	MethodReflection(Method method) {
-		super(method);
-	}
+    private final Annotation annotation;
+    private final A metaAnnotation;
 
-	Object invoke(Object data, Object... args) {
-		return forceAccess(() -> {
-			try {
-				return getElement().invoke(data, args);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
+    MetaAnnotation(Annotation annotation, A metaAnnotation) {
+        this.annotation = annotation;
+        this.metaAnnotation = metaAnnotation;
+    }
 
-	@Override
-	public boolean isStatic() {
-		return Modifier.isStatic(getElement().getModifiers());
-	}
+    public Annotation getAnnotation() {
+        return annotation;
+    }
 
-	@Override
-	public boolean isFinal() {
-		return Modifier.isFinal(getElement().getModifiers());
-	}
-
-	@Override
-	public Class<?> getType() {
-		return getElement().getReturnType();
-	}
-
-	@Override
-	public boolean isGetter() {
-		boolean isBoolean = getType() == Boolean.class || getType() == boolean.class;
-		boolean hasBooleanName = getName().startsWith(IS_PREFIX);
-		boolean hasGetPrefix = getName().startsWith(GET_PREFIX);
-		return getElement().getParameterCount() == 0 && (hasGetPrefix || (isBoolean && hasBooleanName));
-	}
-
-	@Override
-	public boolean isSetter() {
-		return getElement().getParameterCount() == 1 && getName().startsWith(SET_PREFIX);
-	}
+    public A getMetaAnnotation() {
+        return metaAnnotation;
+    }
 
 }

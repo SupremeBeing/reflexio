@@ -41,6 +41,11 @@ class VirtualParameterReflection extends VirtualReflection implements IParameter
     }
 
     @Override
+    public boolean isFinal() {
+        return true;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -63,4 +68,5 @@ class VirtualParameterReflection extends VirtualReflection implements IParameter
         }
         return false;
     }
+
 }

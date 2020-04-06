@@ -26,4 +26,7 @@
 package ru.reflexio;
 
 public interface IParameterReflection extends IReflection {
+
+    boolean isFinal();
+
 }

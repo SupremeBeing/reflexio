@@ -30,7 +30,8 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.function.Supplier;
 
-abstract class MemberReflection<T extends AccessibleObject & Member> extends AnnotatedReflection<T> implements IMemberReflection {
+abstract class MemberReflection<T extends AccessibleObject & Member>
+		extends AnnotatedReflection<T> implements IMemberReflection {
 	
 	MemberReflection(T member) {
 		super(member);
@@ -53,10 +54,12 @@ abstract class MemberReflection<T extends AccessibleObject & Member> extends Ann
 	public String getName() {
 		return getElement().getName();
 	}
-	
+
 	<R> R forceAccess(Supplier<R> supplier) {
+		// TODO: update to canAccess
 		boolean accessible = getElement().isAccessible();
 		if (!accessible) {
+			// TODO: update to trySetAccessible
 			getElement().setAccessible(true);
 		}
 		try {
@@ -67,4 +70,5 @@ abstract class MemberReflection<T extends AccessibleObject & Member> extends Ann
 			}
 		}
 	}
+
 }

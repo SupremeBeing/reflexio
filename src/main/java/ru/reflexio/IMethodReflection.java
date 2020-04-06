@@ -25,14 +25,18 @@
  */
 package ru.reflexio;
 
-public interface IMethodReflection extends IExecutableReflection<Object> {
+public interface IMethodReflection extends IExecutableReflection {
+
+    String IS_PREFIX = "is";
+    String GET_PREFIX = "get";
+    String SET_PREFIX = "set";
 
     boolean isStatic();
 
-    Object invokeOn(Object data, Object... args);
+    boolean isFinal();
 
     boolean isGetter();
 
-    IMethodReflection getSetter();
+    boolean isSetter();
 
 }

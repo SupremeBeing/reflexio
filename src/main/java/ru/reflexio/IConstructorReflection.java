@@ -25,6 +25,8 @@
  */
 package ru.reflexio;
 
-public interface IConstructorReflection<T> extends IExecutableReflection<T> {
+public interface IConstructorReflection<T> extends IExecutableReflection {
+
+    T invoke(Object... args);
 
 }

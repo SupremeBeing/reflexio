@@ -30,7 +30,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class ExecutableReflection<T extends Executable, R> extends MemberReflection<T> implements IExecutableReflection<R> {
+abstract class ExecutableReflection<T extends Executable> extends MemberReflection<T> implements IExecutableReflection {
 
 	ExecutableReflection(T executable) {
 		super(executable);
@@ -44,4 +44,35 @@ abstract class ExecutableReflection<T extends Executable, R> extends MemberRefle
 		}
 		return result;
 	}
+
+	@Override
+	public boolean canInvoke(Class<?>... types) {
+		Parameter[] params = getElement().getParameters();
+		if (types.length != params.length) {
+			return false;
+		}
+		for (int i = 0; i < params.length; i++) {
+			Class<?> type = types[i];
+			Class<?> paramType = params[i].getType();
+			if (type == null) {
+				if (paramType.isPrimitive()) {
+					return false;
+				}
+			} else if (type.isPrimitive() && paramType.isPrimitive()) {
+				if (paramType != type) {
+					return false;
+				}
+			} else if (!type.isPrimitive() && !paramType.isPrimitive()) {
+				if (!paramType.isAssignableFrom(type)) {
+					return false;
+				}
+			} else {
+				if (!Primitive.canAssign(type, paramType)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 }

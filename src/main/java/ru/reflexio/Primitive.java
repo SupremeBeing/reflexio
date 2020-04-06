@@ -57,9 +57,13 @@ public enum Primitive {
 		return null;
 	}
 
-	public static boolean exists(Class<?> primitiveType, Class<?> boxedType) {
-		Primitive primitive = findByPrimitiveType(primitiveType);
-		return primitive != null && Objects.equals(primitive.getBoxedType(), boxedType);
+	public static boolean canAssign(Class<?> type1, Class<?> type2) {
+		for (Primitive primitive : values()) {
+			if (primitive.match(type1, type2)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private final Class<?> primitiveType;
@@ -76,5 +80,11 @@ public enum Primitive {
 
 	public Class<?> getBoxedType() {
 		return boxedType;
-	}	
+	}
+
+	private boolean match(Class<?> type1, Class<?> type2) {
+		return (Objects.equals(primitiveType, type1) && Objects.equals(boxedType, type2))
+				|| (Objects.equals(primitiveType, type2) && Objects.equals(boxedType, type1));
+	}
+
 }

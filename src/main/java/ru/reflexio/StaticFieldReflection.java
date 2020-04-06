@@ -25,52 +25,44 @@
  */
 package ru.reflexio;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
-abstract class MethodReflection extends ExecutableReflection<Method> implements IMethodReflection {
+class StaticFieldReflection extends FieldReflection implements IStaticFieldReflection {
 
-	MethodReflection(Method method) {
-		super(method);
-	}
+    StaticFieldReflection(Field field) {
+        super(field);
+        if (!isStatic()) {
+            throw new IllegalArgumentException();
+        }
+    }
 
-	Object invoke(Object data, Object... args) {
-		return forceAccess(() -> {
-			try {
-				return getElement().invoke(data, args);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
+    @Override
+    public Object getValue() {
+        return super.getValue(null);
+    }
 
-	@Override
-	public boolean isStatic() {
-		return Modifier.isStatic(getElement().getModifiers());
-	}
+    @Override
+    public void setValue(Object value) {
+        super.setValue(null, value);
+    }
 
-	@Override
-	public boolean isFinal() {
-		return Modifier.isFinal(getElement().getModifiers());
-	}
+    @Override
+    public IStaticMethodReflection getGetter() {
+        try {
+            Method method = getElement().getDeclaringClass().getDeclaredMethod(getGetterName());
+            return new StaticMethodReflection(method);
+        } catch (NoSuchMethodException ignore) {}
+        return null;
+    }
 
-	@Override
-	public Class<?> getType() {
-		return getElement().getReturnType();
-	}
-
-	@Override
-	public boolean isGetter() {
-		boolean isBoolean = getType() == Boolean.class || getType() == boolean.class;
-		boolean hasBooleanName = getName().startsWith(IS_PREFIX);
-		boolean hasGetPrefix = getName().startsWith(GET_PREFIX);
-		return getElement().getParameterCount() == 0 && (hasGetPrefix || (isBoolean && hasBooleanName));
-	}
-
-	@Override
-	public boolean isSetter() {
-		return getElement().getParameterCount() == 1 && getName().startsWith(SET_PREFIX);
-	}
+    @Override
+    public IStaticMethodReflection getSetter() {
+        try {
+            Method method = getElement().getDeclaringClass().getDeclaredMethod(getSetterName(), getType());
+            return new StaticMethodReflection(method);
+        } catch (NoSuchMethodException ignore) {}
+        return null;
+    }
 
 }

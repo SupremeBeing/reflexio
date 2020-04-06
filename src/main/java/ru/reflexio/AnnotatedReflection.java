@@ -69,15 +69,15 @@ abstract class AnnotatedReflection<T extends AnnotatedElement> implements IRefle
 	}
 
 	@Override
-	public <A extends Annotation> List<MarkedAnnotation<A>> getMarkedAnnotations(Class<A> markerClass) {
-		List<MarkedAnnotation<A>> result = new ArrayList<>();
+	public <A extends Annotation> List<MetaAnnotation<A>> getMetaAnnotations(Class<A> metaClass) {
+		List<MetaAnnotation<A>> result = new ArrayList<>();
 		for (Annotation annotation : element.getAnnotations()) {
-			Class<? extends Annotation> type = annotation.annotationType();
-			A marker = type.getAnnotation(markerClass);
-			if (marker != null) {	
-				result.add(new MarkedAnnotation<>(annotation, marker));
+			A meta = annotation.annotationType().getAnnotation(metaClass);
+			if (meta != null) {
+				result.add(new MetaAnnotation<>(annotation, meta));
 			}
 		}
 		return result;
 	}
+
 }

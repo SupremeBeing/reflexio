@@ -27,10 +27,10 @@ package ru.reflexio;
 
 import java.util.List;
 
-public interface IExecutableReflection<T> extends IMemberReflection {
+public interface IExecutableReflection extends IMemberReflection {
 
     List<IParameterReflection> getParameters();
 
-    T invoke(Object... args);
+    boolean canInvoke(Class<?>... types);
 
 }
